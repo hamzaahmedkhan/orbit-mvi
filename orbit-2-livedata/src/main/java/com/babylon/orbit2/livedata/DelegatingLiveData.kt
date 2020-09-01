@@ -20,8 +20,8 @@ import androidx.annotation.MainThread
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
+import com.babylon.orbit2.Closeable
 import com.babylon.orbit2.Stream
-import java.io.Closeable
 
 /**
  * This class creates one LiveData per observer in order to defer to the behaviour of the [Stream]

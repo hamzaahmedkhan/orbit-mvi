@@ -20,7 +20,9 @@ import java.util.concurrent.atomic.AtomicInteger
 
 actual class AtomicInt actual constructor(initial: Int) {
     private val actualAtomic = AtomicInteger(initial)
-    actual val value = actualAtomic.get()
+
+    actual val value
+        get() = actualAtomic.get()
 
     actual fun compareAndSet(expected: Int, target: Int): Boolean =
         actualAtomic.compareAndSet(expected, target)
@@ -28,5 +30,4 @@ actual class AtomicInt actual constructor(initial: Int) {
     actual fun decrement() {
         actualAtomic.decrementAndGet()
     }
-
 }

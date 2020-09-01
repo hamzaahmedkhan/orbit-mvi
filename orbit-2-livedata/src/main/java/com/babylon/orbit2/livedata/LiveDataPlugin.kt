@@ -17,9 +17,9 @@
 package com.babylon.orbit2.livedata
 
 import androidx.lifecycle.LiveData
+import com.babylon.orbit2.Closeable
 import com.babylon.orbit2.Container
 import com.babylon.orbit2.Container.Settings
-import java.io.Closeable
 
 /**
  * A [LiveData] of one-off side effects. Depending on the [Settings] this container has been

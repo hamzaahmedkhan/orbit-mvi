@@ -17,7 +17,6 @@
 package com.babylon.orbit2
 
 import kotlinx.coroutines.delay
-import java.io.Closeable
 
 /**
  * Allows you to record all observed values of a stream for easy testing.

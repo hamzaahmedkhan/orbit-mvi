@@ -18,13 +18,13 @@ package com.babylon.orbit2.livedata
 
 import androidx.lifecycle.Lifecycle
 import com.appmattus.kotlinfixture.kotlinFixture
+import com.babylon.orbit2.Closeable
 import com.babylon.orbit2.Stream
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
-import java.io.Closeable
 
 @ExtendWith(InstantTaskExecutorExtension::class)
 internal class DelegatingLiveDataTest {
@@ -38,7 +38,11 @@ internal class DelegatingLiveDataTest {
 
         override fun observe(lambda: (T) -> Unit): Closeable {
             observers += lambda
-            return Closeable { observers.remove(lambda) }
+            return object : Closeable {
+                override fun close() {
+                    observers.remove(lambda)
+                }
+            }
         }
 
         fun post(value: T) {

@@ -14,10 +14,18 @@
  *  limitations under the License.
  */
 
-package com.babylon.orbit2
+package com.babylon.orbit2.concurrent
 
-import kotlinx.coroutines.CoroutineDispatcher
+import kotlin.native.concurrent.AtomicInt
 
-@Suppress("EXPERIMENTAL_API_USAGE")
-internal actual val platformOrbitDispatcher: CoroutineDispatcher = TODO()
-internal actual val platformIoDispatcher: CoroutineDispatcher = TODO()
+actual class AtomicInt actual constructor(initial: Int) {
+    private val actualAtomic = AtomicInt(initial)
+
+    actual val value: Int
+        get() = actualAtomic.value
+
+    actual fun compareAndSet(expected: Int, target: Int): Boolean =
+        actualAtomic.compareAndSet(expected, target)
+
+    actual fun decrement(): Unit = actualAtomic.decrement()
+}

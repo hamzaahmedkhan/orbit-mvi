@@ -21,7 +21,7 @@ plugins {
 
 kotlin {
     jvm()
-    iosX64()
+    ios()
     sourceSets {
         commonMain {
             dependencies {
@@ -29,27 +29,42 @@ kotlin {
                 kotlin("stdlib-native")
             }
         }
-//        jvmMain {
-//            dependencies {
-//                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jvm:1.3.9")
-//            }
-//        }
-//        iosX64Main {
-//            dependencies {
-//                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-native:1.3.9")
-//            }
-//        }
+        commonTest {
+            dependencies {
+                implementation(kotlin("test-common"))
+                implementation(kotlin("test-annotations-common"))
+            }
+        }
+
+        val jvmMain by getting {
+            dependencies {
+                implementation(kotlin("stdlib-jdk8"))
+            }
+        }
+        val jvmTest by getting {
+            dependencies {
+                implementation(project(":orbit-2-test"))
+                GroupedDependencies.testsImplementation.forEach { implementation(it) }
+                runtimeOnly(ProjectDependencies.junitJupiterEngine)
+            }
+        }
+
+        val iosMain by getting {
+            dependencies {
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9-native-mt")
+            }
+        }
     }
 }
 
-//dependencies {
+// dependencies {
 //    compileOnly(ProjectDependencies.androidxAnnotation)
 //
 //    // Testing
 //    testImplementation(project(":orbit-2-test"))
 //    GroupedDependencies.testsImplementation.forEach { testImplementation(it) }
 //    testRuntimeOnly(ProjectDependencies.junitJupiterEngine)
-//}
+// }
 
 // Fix lack of source code when publishing pure Kotlin projects
 // See https://github.com/novoda/bintray-release/issues/262
