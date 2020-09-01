@@ -16,6 +16,7 @@
 
 package com.babylon.orbit2
 
+import com.babylon.orbit2.concurrent.AtomicInt
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
@@ -24,8 +25,6 @@ import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.broadcast
 import kotlinx.coroutines.launch
-import java.io.Closeable
-import java.util.concurrent.atomic.AtomicInteger
 
 @ExperimentalCoroutinesApi
 internal fun <T> BroadcastChannel<T>.asStateStream(initial: () -> T): Stream<T> {
@@ -44,7 +43,11 @@ internal fun <T> BroadcastChannel<T>.asStateStream(initial: () -> T): Stream<T> 
                     }
                 }
             }
-            return Closeable { sub.cancel() }
+            return object : Closeable {
+                override fun close() {
+                    sub.cancel()
+                }
+            }
         }
     }
 }
@@ -61,8 +64,11 @@ internal fun <T> Channel<T>.asNonCachingStream(): Stream<T> {
                     lambda(item)
                 }
             }
-            return Closeable {
-                receiveChannel.cancel()
+
+            return object : Closeable {
+                override fun close() {
+                    receiveChannel.cancel()
+                }
             }
         }
     }
@@ -71,14 +77,14 @@ internal fun <T> Channel<T>.asNonCachingStream(): Stream<T> {
 @ExperimentalCoroutinesApi
 internal fun <T> Channel<T>.asCachingStream(originalScope: CoroutineScope): Stream<T> {
     return object : Stream<T> {
-        private val subCount = AtomicInteger(0)
+        private val subCount = AtomicInt(0)
         private val buffer = mutableListOf<T>()
         private val channel = BroadcastChannel<T>(Channel.BUFFERED)
 
         init {
             originalScope.launch {
                 for (item in this@asCachingStream) {
-                    if (subCount.get() == 0) {
+                    if (subCount.value == 0) {
                         buffer.add(item)
                     } else {
                         channel.send(item)
@@ -101,9 +107,11 @@ internal fun <T> Channel<T>.asCachingStream(originalScope: CoroutineScope): Stre
                     lambda(item)
                 }
             }
-            return Closeable {
-                receiveChannel.cancel()
-                subCount.decrementAndGet()
+            return object : Closeable {
+                override fun close() {
+                    receiveChannel.cancel()
+                    subCount.decrement()
+                }
             }
         }
     }

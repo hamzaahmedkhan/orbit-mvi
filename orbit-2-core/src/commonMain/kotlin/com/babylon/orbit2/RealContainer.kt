@@ -18,7 +18,6 @@ package com.babylon.orbit2
 
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.channels.awaitClose
@@ -27,7 +26,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.newSingleThreadContext
 import kotlinx.coroutines.plus
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -36,8 +34,8 @@ import kotlinx.coroutines.sync.withLock
 open class RealContainer<STATE : Any, SIDE_EFFECT : Any>(
     initialState: STATE,
     private val settings: Container.Settings,
-    orbitDispatcher: CoroutineDispatcher = DEFAULT_DISPATCHER,
-    backgroundDispatcher: CoroutineDispatcher = Dispatchers.IO,
+    orbitDispatcher: CoroutineDispatcher = platformOrbitDispatcher,
+    backgroundDispatcher: CoroutineDispatcher = platformIoDispatcher,
     parentScope: CoroutineScope
 ) : Container<STATE, SIDE_EFFECT> {
     private val scope = parentScope + orbitDispatcher
@@ -102,14 +100,5 @@ open class RealContainer<STATE : Any, SIDE_EFFECT : Any>(
                     }
                 }
             }.collect()
-    }
-
-    companion object {
-        // To be replaced by the new API when it hits:
-        // https://github.com/Kotlin/kotlinx.coroutines/issues/261
-        @Suppress("EXPERIMENTAL_API_USAGE")
-        private val DEFAULT_DISPATCHER by lazy {
-            newSingleThreadContext("orbit")
-        }
     }
 }

@@ -14,21 +14,18 @@
  *  limitations under the License.
  */
 
-package com.babylon.orbit2
+package com.babylon.orbit2.concurrent
 
-import androidx.annotation.CheckResult
-import java.io.Closeable
+import kotlin.native.concurrent.AtomicInt
 
-/**
- * Represents a stream of values.
- *
- * Observing happens on the thread where [observe] is called.
- *
- * The subscription can be closed using the returned [Closeable]. It is the user's responsibility
- * to manage the lifecycle of the subscription.
- */
-interface Stream<T> {
+actual class AtomicInt actual constructor(initial: Int) {
+    private val actualAtomic = AtomicInt(initial)
+    actual val value
+        get() = actualAtomic.value
 
-    @CheckResult
-    fun observe(lambda: (T) -> Unit): Closeable
+    actual fun compareAndSet(expected: Int, target: Int): Boolean =
+        actualAtomic.compareAndSet(expected, target)
+
+    actual fun decrement() = actualAtomic.decrement()
+
 }

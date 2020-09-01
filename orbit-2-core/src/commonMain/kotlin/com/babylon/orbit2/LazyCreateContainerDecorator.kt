@@ -16,14 +16,13 @@
 
 package com.babylon.orbit2
 
-import java.io.Closeable
-import java.util.concurrent.atomic.AtomicBoolean
+import com.babylon.orbit2.concurrent.AtomicInt
 
 class LazyCreateContainerDecorator<STATE : Any, SIDE_EFFECT : Any>(
     override val actual: Container<STATE, SIDE_EFFECT>,
     val onCreate: (state: STATE) -> Unit
 ) : ContainerDecorator<STATE, SIDE_EFFECT> {
-    private val created = AtomicBoolean(false)
+    private val created = AtomicInt(0)
 
     override val currentState: STATE
         get() = actual.currentState
@@ -48,7 +47,7 @@ class LazyCreateContainerDecorator<STATE : Any, SIDE_EFFECT : Any>(
     ) = runOnCreate().also { actual.orbit(init) }
 
     private fun runOnCreate() {
-        if (created.compareAndSet(false, true)) {
+        if (created.compareAndSet(0, 1)) {
             onCreate(actual.currentState)
         }
     }
