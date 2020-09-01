@@ -15,13 +15,13 @@
  */
 
 plugins {
-    id("java-library")
     kotlin("multiplatform")
 }
 
 kotlin {
     jvm()
     iosX64()
+
     sourceSets {
         commonMain {
             dependencies {
@@ -29,11 +29,14 @@ kotlin {
                 kotlin("stdlib-native")
             }
         }
-//        jvmMain {
-//            dependencies {
-//                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jvm:1.3.9")
-//            }
-//        }
+
+        val jvmTest by getting {
+            dependencies {
+                implementation(project(":orbit-2-test"))
+                GroupedDependencies.testsImplementation.forEach { implementation(it) }
+                runtimeOnly(ProjectDependencies.junitJupiterEngine)
+            }
+        }
 //        iosX64Main {
 //            dependencies {
 //                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-native:1.3.9")
@@ -42,20 +45,11 @@ kotlin {
     }
 }
 
-//dependencies {
-//    compileOnly(ProjectDependencies.androidxAnnotation)
-//
-//    // Testing
-//    testImplementation(project(":orbit-2-test"))
-//    GroupedDependencies.testsImplementation.forEach { testImplementation(it) }
-//    testRuntimeOnly(ProjectDependencies.junitJupiterEngine)
-//}
-
 // Fix lack of source code when publishing pure Kotlin projects
 // See https://github.com/novoda/bintray-release/issues/262
-tasks.whenTaskAdded {
-    if (name == "generateSourcesJarForMavenPublication") {
-        this as Jar
-        from(sourceSets.main.get().allSource)
-    }
-}
+//tasks.whenTaskAdded {
+//    if (name == "generateSourcesJarForMavenPublication") {
+//        this as Jar
+//        from(sourceSets.main.get().allSource)
+//    }
+//}
