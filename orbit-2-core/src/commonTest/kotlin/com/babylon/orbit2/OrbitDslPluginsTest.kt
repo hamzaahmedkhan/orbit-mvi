@@ -16,23 +16,21 @@
 
 package com.babylon.orbit2
 
-import com.appmattus.kotlinfixture.kotlinFixture
+import io.kotest.matchers.collections.shouldContainExactly
 import kotlinx.coroutines.flow.Flow
-import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.Test
+import kotlin.test.AfterTest
+import kotlin.test.Test
 
 internal class OrbitDslPluginsTest {
-    val fixture = kotlinFixture()
 
-    @AfterEach
+    @AfterTest
     fun afterEach() {
         OrbitDslPlugins.reset()
     }
 
     @Test
     fun `base plugin is present by default`() {
-        assertThat(OrbitDslPlugins.plugins).containsExactly(BaseDslPlugin)
+        OrbitDslPlugins.plugins shouldContainExactly setOf(BaseDslPlugin)
     }
 
     @Test
@@ -40,7 +38,7 @@ internal class OrbitDslPluginsTest {
 
         OrbitDslPlugins.register(TestPlugin)
 
-        assertThat(OrbitDslPlugins.plugins).containsExactly(BaseDslPlugin, TestPlugin)
+        OrbitDslPlugins.plugins shouldContainExactly setOf(BaseDslPlugin, TestPlugin)
     }
 
     private object TestPlugin : OrbitDslPlugin {

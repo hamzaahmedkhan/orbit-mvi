@@ -32,6 +32,7 @@ kotlin {
             dependencies {
                 implementation(kotlin("test-common"))
                 implementation(kotlin("test-annotations-common"))
+                implementation("io.kotest:kotest-assertions-core:4.2.3")
             }
         }
 
@@ -42,6 +43,9 @@ kotlin {
         }
         val jvmTest by getting {
             dependencies {
+                implementation(kotlin("test-junit"))
+                implementation("io.kotest:kotest-assertions-core-jvm:4.2.3")
+
                 implementation(project(":orbit-2-test"))
                 GroupedDependencies.testsImplementation.forEach { implementation(it) }
                 runtimeOnly(ProjectDependencies.junitJupiterEngine)
