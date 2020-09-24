@@ -47,6 +47,7 @@ kotlin {
                 implementation("io.kotest:kotest-assertions-core-jvm:4.2.3")
 
                 implementation(project(":orbit-2-test"))
+                testImplementation(ProjectDependencies.kotlinCoroutinesTest)
                 GroupedDependencies.testsImplementation.forEach { implementation(it) }
                 runtimeOnly(ProjectDependencies.junitJupiterEngine)
             }

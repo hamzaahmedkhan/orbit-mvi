@@ -25,10 +25,9 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.babylon.orbit2.livedata.state
 import com.babylon.orbit2.sample.posts.R
 import com.babylon.orbit2.sample.posts.app.common.SeparatorDecoration
 import com.babylon.orbit2.sample.posts.app.features.postdetails.viewmodel.PostDetailState
@@ -40,6 +39,7 @@ import com.bumptech.glide.request.transition.Transition
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
 import kotlinx.android.synthetic.main.post_details_fragment.*
+import kotlinx.coroutines.flow.collect
 import org.koin.androidx.viewmodel.ext.android.stateViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -74,7 +74,9 @@ class PostDetailsFragment : Fragment() {
 
         post_comments_list.adapter = adapter
 
-        viewModel.container.state.observe(viewLifecycleOwner, Observer { render(it) })
+        lifecycleScope.launchWhenCreated {
+            viewModel.container.stateFlow.collect { render(it) }
+        }
     }
 
     private fun render(state: PostDetailState) {
@@ -84,19 +86,21 @@ class PostDetailsFragment : Fragment() {
                 title = state.postOverview.username
                 Glide.with(requireContext()).load(state.postOverview.avatarUrl)
                     .apply(RequestOptions.overrideOf(resources.getDimensionPixelSize(R.dimen.toolbar_logo_size)))
-                    .apply(RequestOptions.circleCropTransform()).into(object : CustomTarget<Drawable>() {
-                        override fun onLoadCleared(placeholder: Drawable?) {
-                            placeholder?.let(::setLogo)
-                        }
-
-                        override fun onResourceReady(resource: Drawable, transition: Transition<in Drawable>?) {
-                            val logo = LayerDrawable(arrayOf(resource)).apply {
-                                setLayerInset(0, 0, 0, resources.getDimensionPixelSize(R.dimen.toolbar_logo_padding_end), 0)
+                    .apply(RequestOptions.circleCropTransform()).into(
+                        object : CustomTarget<Drawable>() {
+                            override fun onLoadCleared(placeholder: Drawable?) {
+                                placeholder?.let(::setLogo)
                             }
 
-                            setLogo(logo)
+                            override fun onResourceReady(resource: Drawable, transition: Transition<in Drawable>?) {
+                                val logo = LayerDrawable(arrayOf(resource)).apply {
+                                    setLayerInset(0, 0, 0, resources.getDimensionPixelSize(R.dimen.toolbar_logo_padding_end), 0)
+                                }
+
+                                setLogo(logo)
+                            }
                         }
-                    })
+                    )
             }
             post_title.text = state.postOverview.title
         }
