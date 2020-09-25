@@ -22,7 +22,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-import java.io.Closeable
 import kotlin.coroutines.EmptyCoroutineContext
 
 @ExperimentalCoroutinesApi
@@ -37,7 +36,11 @@ internal fun <T> Flow<T>.asStream(): Stream<T> {
                 }
             }
 
-            return Closeable { job.cancel() }
+            return object : Closeable {
+                override fun close() {
+                    job.cancel()
+                }
+            }
         }
     }
 }
